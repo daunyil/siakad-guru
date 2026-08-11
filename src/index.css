@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+.document-page,
+.document-page *,
+.document-page table,
+.document-page th,
+.document-page td,
+.document-page div,
+.document-page span,
+.document-page input,
+.document-page select,
+.document-page button,
+.document-page p,
+.document-page h1,
+.document-page h2,
+.document-page h3 {
+  font-family: 'Times New Roman', Times, Georgia, serif !important;
+}
+
+@media print {
+  .no-print,
+  .print\:hidden,
+  [class*="print:hidden"],
+  aside,
+  header,
+  nav,
+  button,
+  .no-print * {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  mark {
+    background-color: #fef08a !important;
+    color: #451a03 !important;
+    border-bottom: 2px solid #f59e0b !important;
+    padding: 1px 4px !important;
+    border-radius: 3px !important;
+    font-weight: 600 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .document-page {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .print-only {
+    display: inline-block !important;
+  }
+
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+}
