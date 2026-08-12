@@ -7,7 +7,7 @@ import type {
   TeacherProfile,
   AcademicYear,
 } from '../../types';
-import { initialCpSubjects } from '../../data/cpMasterData';
+import { initialCpSubjects, findCpSubjectId } from '../../data/cpMasterData';
 import { smartPrint } from '../../utils/printHelper';
 import {
   FileText,
@@ -37,6 +37,8 @@ interface AsesmenSoalGeneratorProps {
   school: SchoolProfile;
   teacher: TeacherProfile;
   year: AcademicYear;
+  selectedAssignmentSubject?: string;
+  selectedClassLabel?: string;
 }
 
 export type AssessmentType = 'STS' | 'SAS' | 'UH_FORMATIF';
@@ -68,12 +70,23 @@ export const AsesmenSoalGenerator: React.FC<AsesmenSoalGeneratorProps> = ({
   school,
   teacher,
   year,
+  selectedAssignmentSubject,
+  selectedClassLabel,
 }) => {
   // Master Subjects
   const [cpSubjects] = useState<CPSubject[]>(initialCpSubjects);
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(
-    initialCpSubjects[0]?.id || ''
+  const activeSubjectName = selectedAssignmentSubject || teacher.subject;
+
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(() =>
+    findCpSubjectId(initialCpSubjects, activeSubjectName)
   );
+
+  React.useEffect(() => {
+    const targetSubjectId = findCpSubjectId(cpSubjects, activeSubjectName);
+    if (targetSubjectId) {
+      setSelectedSubjectId(targetSubjectId);
+    }
+  }, [activeSubjectName, cpSubjects]);
 
   const currentSubject = useMemo(() => {
     return cpSubjects.find((s) => s.id === selectedSubjectId) || cpSubjects[0];
@@ -82,7 +95,18 @@ export const AsesmenSoalGenerator: React.FC<AsesmenSoalGeneratorProps> = ({
   // Active View Tab: Kisi-kisi | Kartu Soal | Naskah Soal Siswa | Kunci Jawaban
   const [activeTab, setActiveTab] = useState<'kisi' | 'kartu' | 'naskah' | 'kunci'>('kisi');
   const [assessmentType, setAssessmentType] = useState<AssessmentType>('SAS');
-  const [targetClass, setTargetClass] = useState<'VII' | 'VIII' | 'IX'>('VII');
+  const [targetClass, setTargetClass] = useState<'VII' | 'VIII' | 'IX'>(() => {
+    if (selectedClassLabel?.toUpperCase().includes('VIII')) return 'VIII';
+    if (selectedClassLabel?.toUpperCase().includes('IX')) return 'IX';
+    return 'VII';
+  });
+
+  React.useEffect(() => {
+    if (selectedClassLabel?.toUpperCase().includes('VIII')) setTargetClass('VIII');
+    else if (selectedClassLabel?.toUpperCase().includes('IX')) setTargetClass('IX');
+    else if (selectedClassLabel?.toUpperCase().includes('VII')) setTargetClass('VII');
+  }, [selectedClassLabel]);
+
   const [semester, setSemester] = useState<1 | 2>(1);
   const [timeAllocation, setTimeAllocation] = useState<string>('90 Menit');
 
@@ -97,6 +121,19 @@ export const AsesmenSoalGenerator: React.FC<AsesmenSoalGeneratorProps> = ({
     teacherNip: teacher.nip || '19850410 201001 2 015',
     dateLocation: 'Bantan, 25 November 2025',
   });
+
+  React.useEffect(() => {
+    setKopSettings((prev) => ({
+      ...prev,
+      schoolName: school.name || prev.schoolName,
+      npsn: school.npsn || prev.npsn,
+      address: school.address || prev.address,
+      headmasterName: school.headmasterName || prev.headmasterName,
+      headmasterNip: school.headmasterNip || prev.headmasterNip,
+      teacherName: teacher.name || prev.teacherName,
+      teacherNip: teacher.nip || prev.teacherNip,
+    }));
+  }, [school, teacher]);
 
   const [isEditingKop, setIsEditingKop] = useState<boolean>(false);
   const [notification, setNotification] = useState<string | null>(null);

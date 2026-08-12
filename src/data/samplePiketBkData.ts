@@ -1,3 +1,19 @@
+export interface DailyClassAttendance {
+  kelas: string;
+  totalSiswa: number;
+  hadir: number;
+  sakit: number;
+  izin: number;
+  alpa: number;
+  absenStudents: Array<{
+    id: string;
+    nama: string;
+    nisn?: string;
+    keterangan: 'Sakit' | 'Izin' | 'Alpa' | 'Bolos/Cabut';
+    alasan?: string;
+  }>;
+}
+
 export interface RecordPelanggaranPiket {
   id: string;
   tanggal: string;
@@ -55,6 +71,45 @@ export const initialViolationRules: Array<{ id: string; kategori: RecordPelangga
 
 export const initialPiketRecords: RecordPelanggaranPiket[] = [
   {
+    id: 'piket-budi-1',
+    tanggal: '2025-07-15',
+    jamKe: '1 (07.15)',
+    nisn: '0081234500',
+    namaSiswa: 'Budi Santoso',
+    kelas: 'VIII-A',
+    jenisPelanggaran: 'Terlambat masuk sekolah (> 30 Menit / Tanpa Alasan)',
+    kategori: 'Keterlambatan',
+    poin: 15,
+    tindakanPiket: 'Pembersihan lingkungan & pembinaan lisan',
+    statusDisposisi: 'Selesai di Piket',
+  },
+  {
+    id: 'piket-budi-2',
+    tanggal: '2025-07-22',
+    jamKe: '4 (09.30)',
+    nisn: '0081234500',
+    namaSiswa: 'Budi Santoso',
+    kelas: 'VIII-A',
+    jenisPelanggaran: 'Meninggalkan area sekolah tanpa izin (Membolos jam KBM)',
+    kategori: 'Kedisiplinan',
+    poin: 25,
+    tindakanPiket: 'Surat Pernyataan Kedisiplinan & Pemberitahuan Wali Kelas',
+    statusDisposisi: 'Diteruskan ke Wali Kelas',
+  },
+  {
+    id: 'piket-budi-3',
+    tanggal: '2025-07-28',
+    jamKe: '2 (07.55)',
+    nisn: '0081234500',
+    namaSiswa: 'Budi Santoso',
+    kelas: 'VIII-A',
+    jenisPelanggaran: 'Merokok / Vaping di area belakang kantin sekolah',
+    kategori: 'Berat',
+    poin: 50,
+    tindakanPiket: 'Pemanggilan Orang Tua & Rujukan Konseling BK',
+    statusDisposisi: 'Rujukan ke Guru BK',
+  },
+  {
     id: 'piket-1',
     tanggal: '2025-07-21',
     jamKe: '1 (07.15)',
@@ -89,9 +144,22 @@ export const initialPiketRecords: RecordPelanggaranPiket[] = [
     kelas: 'IX-C',
     jenisPelanggaran: 'Meninggalkan area sekolah tanpa izin (Membolos jam KBM)',
     kategori: 'Kedisiplinan',
-    poin: 15,
+    poin: 25,
     tindakanPiket: 'Pemanggilan orang tua & pembuatan surat pernyataan',
     statusDisposisi: 'Rujukan ke Guru BK',
+  },
+  {
+    id: 'piket-4',
+    tanggal: '2025-07-26',
+    jamKe: '2 (07.55)',
+    nisn: '0081234512',
+    namaSiswa: 'Doni Kurniawan',
+    kelas: 'IX-C',
+    jenisPelanggaran: 'Menggunakan HP Tanpa Izin Guru saat KBM',
+    kategori: 'Ketertiban Kelas',
+    poin: 10,
+    tindakanPiket: 'HP diamankan di piket & diserahkan ke wali kelas',
+    statusDisposisi: 'Diteruskan ke Wali Kelas',
   },
 ];
 
@@ -132,6 +200,86 @@ export const initialEkskulList: string[] = [
   'Seni Musik & Tari Tradisional',
   'Karya Ilmiah Remaja (KIR)',
   'English Club',
+];
+
+export const initialClassAttendance: DailyClassAttendance[] = [
+  {
+    kelas: 'VII-A',
+    totalSiswa: 32,
+    hadir: 29,
+    sakit: 1,
+    izin: 0,
+    alpa: 2,
+    absenStudents: [
+      { id: 'abs-1', nama: 'Andi Santoso', nisn: '0081234581', keterangan: 'Sakit', alasan: 'Demam tinggi & flu (ada surat dokter)' },
+      { id: 'abs-2', nama: 'Anto Wijaya', nisn: '0081234582', keterangan: 'Alpa', alasan: 'Tanpa keterangan' },
+      { id: 'abs-3', nama: 'Ani Safitri', nisn: '0081234583', keterangan: 'Alpa', alasan: 'Tanpa keterangan' },
+    ],
+  },
+  {
+    kelas: 'VII-B',
+    totalSiswa: 30,
+    hadir: 30,
+    sakit: 0,
+    izin: 0,
+    alpa: 0,
+    absenStudents: [],
+  },
+  {
+    kelas: 'VIII-A',
+    totalSiswa: 32,
+    hadir: 30,
+    sakit: 1,
+    izin: 1,
+    alpa: 0,
+    absenStudents: [
+      { id: 'abs-4', nama: 'Budi Santoso', nisn: '0081234500', keterangan: 'Sakit', alasan: 'Penyakit lambung/maag' },
+      { id: 'abs-5', nama: 'Citra Melati', nisn: '0081234584', keterangan: 'Izin', alasan: 'Acara keluarga luar kota' },
+    ],
+  },
+  {
+    kelas: 'VIII-B',
+    totalSiswa: 31,
+    hadir: 30,
+    sakit: 0,
+    izin: 0,
+    alpa: 1,
+    absenStudents: [
+      { id: 'abs-6', nama: 'Rian Hidayat', nisn: '0081234508', keterangan: 'Alpa', alasan: 'Keterlambatan parah & tanpa surat' },
+    ],
+  },
+  {
+    kelas: 'IX-A',
+    totalSiswa: 32,
+    hadir: 32,
+    sakit: 0,
+    izin: 0,
+    alpa: 0,
+    absenStudents: [],
+  },
+  {
+    kelas: 'IX-B',
+    totalSiswa: 30,
+    hadir: 29,
+    sakit: 1,
+    izin: 0,
+    alpa: 0,
+    absenStudents: [
+      { id: 'abs-7', nama: 'Eka Putri', nisn: '0081234585', keterangan: 'Sakit', alasan: 'Izin berobat ke puskesmas' },
+    ],
+  },
+  {
+    kelas: 'IX-C',
+    totalSiswa: 31,
+    hadir: 29,
+    sakit: 0,
+    izin: 0,
+    alpa: 2,
+    absenStudents: [
+      { id: 'abs-8', nama: 'Doni Kurniawan', nisn: '0081234512', keterangan: 'Alpa', alasan: 'Membolos jam KBM' },
+      { id: 'abs-9', nama: 'Fajar Nugraha', nisn: '0081234586', keterangan: 'Alpa', alasan: 'Tanpa keterangan' },
+    ],
+  },
 ];
 
 export const initialEkskulStudents: StudentEkskul[] = [
@@ -181,3 +329,5 @@ export const initialEkskulStudents: StudentEkskul[] = [
     keterangan: 'Kapten tim futsal kelas VII, menunjukkan sportivitas tinggi.',
   },
 ];
+
+

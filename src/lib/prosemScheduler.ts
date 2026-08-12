@@ -156,6 +156,33 @@ export function generateProsemSchedule(
     activeTps = isGanjil ? allGradeTps.slice(0, halfLength) : allGradeTps.slice(halfLength);
   }
 
+  // Count available KBM weeks
+  let kbmWeeksCount = 0;
+  monthCols.forEach((m) => {
+    for (let wIdx = 0; wIdx < m.weeks; wIdx++) {
+      const tagKey = `${m.name}-${wIdx}`;
+      const status: WeekStatus = activeTags[tagKey] || 'kbm';
+      if (status === 'kbm') kbmWeeksCount++;
+    }
+  });
+
+  // Scale activeTps JP if total JP is less than available KBM weeks (leaving 1 week cadangan)
+  const targetKbmJp = Math.max(jpPerWeek, (kbmWeeksCount - 1) * jpPerWeek);
+  const currentTpJpSum = activeTps.reduce((sum, t) => sum + (t.jp || 3), 0);
+
+  if (activeTps.length > 0 && currentTpJpSum > 0 && currentTpJpSum < targetKbmJp) {
+    let allocated = 0;
+    activeTps = activeTps.map((tp, idx) => {
+      if (idx === activeTps.length - 1) {
+        return { ...tp, jp: Math.max(1, targetKbmJp - allocated) };
+      } else {
+        const val = Math.max(1, Math.round(((tp.jp || 3) / currentTpJpSum) * targetKbmJp));
+        allocated += val;
+        return { ...tp, jp: val };
+      }
+    });
+  }
+
   const result: ScheduledMeeting[] = [];
   let meetingCounter = 1;
   let tpIndex = 0;

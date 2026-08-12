@@ -7,7 +7,7 @@ import type {
   TeacherProfile,
   AcademicYear,
 } from '../../types';
-import { initialCpSubjects } from '../../data/cpMasterData';
+import { initialCpSubjects, findCpSubjectId } from '../../data/cpMasterData';
 import { smartPrint } from '../../utils/printHelper';
 import {
   FileSpreadsheet,
@@ -37,6 +37,8 @@ interface LkpdGeneratorProps {
   school: SchoolProfile;
   teacher: TeacherProfile;
   year: AcademicYear;
+  selectedAssignmentSubject?: string;
+  selectedClassLabel?: string;
 }
 
 export interface LkpdQuestion {
@@ -78,12 +80,23 @@ export const LkpdGenerator: React.FC<LkpdGeneratorProps> = ({
   school,
   teacher,
   year,
+  selectedAssignmentSubject,
+  selectedClassLabel,
 }) => {
   // Master Subject Data
   const [cpSubjects] = useState<CPSubject[]>(initialCpSubjects);
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(
-    initialCpSubjects[0]?.id || ''
+  const activeSubjectName = selectedAssignmentSubject || teacher.subject;
+
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(() =>
+    findCpSubjectId(initialCpSubjects, activeSubjectName)
   );
+
+  React.useEffect(() => {
+    const targetSubjectId = findCpSubjectId(cpSubjects, activeSubjectName);
+    if (targetSubjectId) {
+      setSelectedSubjectId(targetSubjectId);
+    }
+  }, [activeSubjectName, cpSubjects]);
 
   const currentSubject = useMemo(() => {
     return cpSubjects.find((s) => s.id === selectedSubjectId) || cpSubjects[0];
@@ -123,6 +136,19 @@ export const LkpdGenerator: React.FC<LkpdGeneratorProps> = ({
     teacherNip: teacher.nip || '19850410 201001 2 015',
     dateLocation: 'Bantan, 18 Juli 2025',
   });
+
+  React.useEffect(() => {
+    setKopSettings((prev) => ({
+      ...prev,
+      schoolName: school.name || prev.schoolName,
+      npsn: school.npsn || prev.npsn,
+      address: school.address || prev.address,
+      headmasterName: school.headmasterName || prev.headmasterName,
+      headmasterNip: school.headmasterNip || prev.headmasterNip,
+      teacherName: teacher.name || prev.teacherName,
+      teacherNip: teacher.nip || prev.teacherNip,
+    }));
+  }, [school, teacher]);
 
   const [isEditingKop, setIsEditingKop] = useState<boolean>(false);
   const [notification, setNotification] = useState<string | null>(null);

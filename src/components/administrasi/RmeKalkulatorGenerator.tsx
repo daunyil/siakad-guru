@@ -52,6 +52,8 @@ interface RmeKalkulatorGeneratorProps {
   school: SchoolProfile;
   teacher: TeacherProfile;
   year: AcademicYear;
+  selectedAssignmentSubject?: string;
+  selectedClassLabel?: string;
   onApplyToProtaProsem?: (ganjilWeeks: number, genapWeeks: number) => void;
 }
 
@@ -102,6 +104,8 @@ export const RmeKalkulatorGenerator: React.FC<RmeKalkulatorGeneratorProps> = ({
   school,
   teacher,
   year,
+  selectedAssignmentSubject,
+  selectedClassLabel,
   onApplyToProtaProsem,
 }) => {
   // Config States
@@ -110,8 +114,19 @@ export const RmeKalkulatorGenerator: React.FC<RmeKalkulatorGeneratorProps> = ({
   const [viewMode, setViewMode] = useState<'kalender_angka' | 'pekan_ringkas' | 'tabel_rme'>('kalender_angka');
 
   // Subject & Class Info
-  const [subjectName, setSubjectName] = useState<string>(teacher.subject || 'Pendidikan Pancasila');
-  const [classGrade, setClassGrade] = useState<string>('Kelas VII-A');
+  const activeSubject = selectedAssignmentSubject || teacher.subject || 'Pendidikan Pancasila';
+  const activeClass = selectedClassLabel ? `Kelas ${selectedClassLabel}` : 'Kelas VII-A';
+
+  const [subjectName, setSubjectName] = useState<string>(activeSubject);
+  const [classGrade, setClassGrade] = useState<string>(activeClass);
+
+  React.useEffect(() => {
+    if (activeSubject) setSubjectName(activeSubject);
+  }, [activeSubject]);
+
+  React.useEffect(() => {
+    if (activeClass) setClassGrade(activeClass);
+  }, [activeClass]);
 
   // Teacher Schedule Mode ('single' vs 'double')
   const [teacherMode, setTeacherMode] = useState<'single' | 'double'>('double');

@@ -18,8 +18,6 @@ export const ProtaTable: React.FC<ProtaTableProps> = ({
   allocatedJpGanjil,
   allocatedJpGenap,
   totalAllocatedJp,
-  totalJpGanjilAvailable,
-  totalJpGenapAvailable,
   handleUpdateJp,
 }) => {
   const ganjilItems = tpAllocations.filter((a) => a.semester === 'ganjil');
@@ -34,15 +32,11 @@ export const ProtaTable: React.FC<ProtaTableProps> = ({
   const totalIntra = ganjilIntra + genapIntra;
   const totalKo = ganjilKo + genapKo;
 
-  const cadanganGanjil = Math.max(0, totalJpGanjilAvailable - allocatedJpGanjil);
-  const cadanganGenap = Math.max(0, totalJpGenapAvailable - allocatedJpGenap);
-  const totalCadangan = cadanganGanjil + cadanganGenap;
-
   return (
     <div className="space-y-4 font-sans">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h4 className="font-bold text-xs uppercase underline font-serif">
-          MATRIKS DISTRIBUSI ALOKASI WAKTU SATU TAHUN PELAJARAN
+          MATRIKS DISTRIBUSI ALOKASI WAKTU SATU TAHUN PELAJARAN (PROGRAM TAHUNAN)
         </h4>
         <div className="text-[11px] bg-amber-50 px-2.5 py-1 rounded border border-amber-300 font-bold text-amber-900 flex items-center gap-2">
           <span>💡 Sebaran Alokasi:</span>
@@ -143,54 +137,30 @@ export const ProtaTable: React.FC<ProtaTableProps> = ({
             {/* Summary Rows */}
             <tr className="bg-slate-100 font-bold border-t-2 border-black">
               <td colSpan={3} className="border border-black px-2 py-1.5 text-right">
-                TOTAL MATA PELAJARAN (TP) SEMESTER GANJIL
+                JUMLAH ALOKASI WAKTU SEMESTER GANJIL
               </td>
               <td className="border border-black text-center text-blue-900">{ganjilIntra} JP</td>
               <td className="border border-black text-center text-amber-900">{ganjilKo} JP</td>
               <td className="border border-black text-center font-black">{allocatedJpGanjil} JP</td>
               <td className="border border-black no-print" />
             </tr>
-            <tr className="bg-emerald-50/80 font-bold text-emerald-950">
-              <td colSpan={3} className="border border-black px-2 py-1.5 text-right italic">
-                + ALOKASI CADANGAN / JAM CADANGAN SEMESTER GANJIL (ULANGAN, REMEDIAL, PENGAYAAN)
-              </td>
-              <td className="border border-black text-center text-emerald-900" colSpan={2}>
-                Jam Cadangan Efektif
-              </td>
-              <td className="border border-black text-center font-black text-emerald-900">
-                {cadanganGanjil} JP
-              </td>
-              <td className="border border-black no-print" />
-            </tr>
-            <tr className="bg-slate-200 font-bold border-t border-black">
+            <tr className="bg-slate-100 font-bold border-t border-black">
               <td colSpan={3} className="border border-black px-2 py-1.5 text-right">
-                TOTAL MATA PELAJARAN (TP) SEMESTER GENAP
+                JUMLAH ALOKASI WAKTU SEMESTER GENAP
               </td>
               <td className="border border-black text-center text-blue-900">{genapIntra} JP</td>
               <td className="border border-black text-center text-amber-900">{genapKo} JP</td>
               <td className="border border-black text-center font-black">{allocatedJpGenap} JP</td>
               <td className="border border-black no-print" />
             </tr>
-            <tr className="bg-emerald-50/80 font-bold text-emerald-950">
-              <td colSpan={3} className="border border-black px-2 py-1.5 text-right italic">
-                + ALOKASI CADANGAN / JAM CADANGAN SEMESTER GENAP (ULANGAN, REMEDIAL, PENGAYAAN)
-              </td>
-              <td className="border border-black text-center text-emerald-900" colSpan={2}>
-                Jam Cadangan Efektif
-              </td>
-              <td className="border border-black text-center font-black text-emerald-900">
-                {cadanganGenap} JP
-              </td>
-              <td className="border border-black no-print" />
-            </tr>
             <tr className="bg-blue-100 font-bold text-blue-950 border-t-2 border-black">
               <td colSpan={3} className="border border-black px-2 py-1.5 text-right uppercase font-black">
-                JUMLAH TOTAL PROTA 1 TAHUN (TP INTRA {totalIntra} JP + P5 {totalKo} JP + CADANGAN {totalCadangan} JP)
+                JUMLAH TOTAL ALOKASI WAKTU PROTA (1 TAHUN PELAJARAN)
               </td>
               <td className="border border-black text-center text-blue-950 font-black">{totalIntra} JP</td>
               <td className="border border-black text-center text-amber-950 font-black">{totalKo} JP</td>
               <td className="border border-black text-center font-black text-sm bg-blue-200/80">
-                {totalAllocatedJp + totalCadangan} JP
+                {totalAllocatedJp} JP
               </td>
               <td className="border border-black no-print" />
             </tr>

@@ -6,7 +6,7 @@ import type {
   TeacherProfile,
   AcademicYear,
 } from '../../types';
-import { initialCpSubjects } from '../../data/cpMasterData';
+import { initialCpSubjects, findCpSubjectId } from '../../data/cpMasterData';
 import { smartPrint } from '../../utils/printHelper';
 import {
   BookOpen,
@@ -25,19 +25,43 @@ interface ModulAjarGeneratorProps {
   school: SchoolProfile;
   teacher: TeacherProfile;
   year: AcademicYear;
+  selectedAssignmentSubject?: string;
+  selectedClassLabel?: string;
 }
 
 export const ModulAjarGenerator: React.FC<ModulAjarGeneratorProps> = ({
   school,
   teacher,
   year,
+  selectedAssignmentSubject,
+  selectedClassLabel,
 }) => {
   // Master Subjects Data
   const [subjects] = useState<CPSubject[]>(initialCpSubjects);
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(
-    initialCpSubjects[0]?.id || ''
+  const activeSubjectName = selectedAssignmentSubject || teacher.subject;
+
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(() =>
+    findCpSubjectId(initialCpSubjects, activeSubjectName)
   );
-  const [selectedGrade, setSelectedGrade] = useState<'VII' | 'VIII' | 'IX'>('VII');
+
+  React.useEffect(() => {
+    const targetSubjectId = findCpSubjectId(subjects, activeSubjectName);
+    if (targetSubjectId) {
+      setSelectedSubjectId(targetSubjectId);
+    }
+  }, [activeSubjectName, subjects]);
+
+  const [selectedGrade, setSelectedGrade] = useState<'VII' | 'VIII' | 'IX'>(() => {
+    if (selectedClassLabel?.toUpperCase().includes('VIII')) return 'VIII';
+    if (selectedClassLabel?.toUpperCase().includes('IX')) return 'IX';
+    return 'VII';
+  });
+
+  React.useEffect(() => {
+    if (selectedClassLabel?.toUpperCase().includes('VIII')) setSelectedGrade('VIII');
+    else if (selectedClassLabel?.toUpperCase().includes('IX')) setSelectedGrade('IX');
+    else if (selectedClassLabel?.toUpperCase().includes('VII')) setSelectedGrade('VII');
+  }, [selectedClassLabel]);
 
   // Selected TP
   const currentSubject = useMemo(() => {

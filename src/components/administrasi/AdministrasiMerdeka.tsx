@@ -522,22 +522,66 @@ export const AdministrasiMerdeka: React.FC<AdministrasiMerdekaProps> = ({
           school={school}
           teacher={teacher}
           year={year}
+          selectedAssignmentSubject={selectedAssignmentSubject}
+          selectedClassLabel={selectedClassLabel}
           onApplyToProtaProsem={() => handleSetSubView('prota-prosem')}
         />
       ) : currentSubView === 'atp' ? (
-        <AtpGenerator school={school} teacher={teacher} year={year} />
+        <AtpGenerator
+          school={school}
+          teacher={teacher}
+          year={year}
+          selectedAssignmentSubject={selectedAssignmentSubject}
+          selectedClassLabel={selectedClassLabel}
+        />
       ) : currentSubView === 'cp-bskap' ? (
-        <CPViewerAndCustomizer school={school} teacher={teacher} year={year} />
+        <CPViewerAndCustomizer
+          school={school}
+          teacher={teacher}
+          year={year}
+          selectedAssignmentSubject={selectedAssignmentSubject}
+          selectedClassLabel={selectedClassLabel}
+        />
       ) : currentSubView === 'prota-prosem' ? (
-        <ProtaProsemGenerator school={school} teacher={teacher} year={year} />
+        <ProtaProsemGenerator
+          school={school}
+          teacher={teacher}
+          year={year}
+          selectedAssignmentSubject={selectedAssignmentSubject}
+          selectedClassLabel={selectedClassLabel}
+        />
       ) : currentSubView === 'modul-ajar' ? (
-        <ModulAjarGenerator school={school} teacher={teacher} year={year} />
+        <ModulAjarGenerator
+          school={school}
+          teacher={teacher}
+          year={year}
+          selectedAssignmentSubject={selectedAssignmentSubject}
+          selectedClassLabel={selectedClassLabel}
+        />
       ) : currentSubView === 'lkpd' ? (
-        <LkpdGenerator school={school} teacher={teacher} year={year} />
+        <LkpdGenerator
+          school={school}
+          teacher={teacher}
+          year={year}
+          selectedAssignmentSubject={selectedAssignmentSubject}
+          selectedClassLabel={selectedClassLabel}
+        />
       ) : currentSubView === 'asesmen-soal' ? (
-        <AsesmenSoalGenerator school={school} teacher={teacher} year={year} />
+        <AsesmenSoalGenerator
+          school={school}
+          teacher={teacher}
+          year={year}
+          selectedAssignmentSubject={selectedAssignmentSubject}
+          selectedClassLabel={selectedClassLabel}
+        />
       ) : currentSubView === 'asesmen-kktp' ? (
-        <AsesmenKKTPGenerator school={school} teacher={teacher} year={year} />
+        <AsesmenKKTPGenerator
+          school={school}
+          teacher={teacher}
+          year={year}
+          selectedAssignmentSubject={selectedAssignmentSubject}
+          selectedClassLabel={selectedClassLabel}
+        />
       ) : currentSubView === 'remedial-pengayaan' ? (
         <RemedialPengayaanGenerator
           school={school}
@@ -547,7 +591,13 @@ export const AdministrasiMerdeka: React.FC<AdministrasiMerdekaProps> = ({
           selectedClassLabel={selectedClassLabel}
         />
       ) : currentSubView === 'p5-projek' ? (
-        <P5ProjekGenerator school={school} teacher={teacher} year={year} />
+        <P5ProjekGenerator
+          school={school}
+          teacher={teacher}
+          year={year}
+          selectedAssignmentSubject={selectedAssignmentSubject}
+          selectedClassLabel={selectedClassLabel}
+        />
       ) : currentSubView === 'laporan-piket' ? (
         <PiketBkEkstraGenerator school={school} teacher={teacher} year={year} initialTab="piket" />
       ) : currentSubView === 'buku-poin-pelanggaran' ? (
@@ -555,7 +605,13 @@ export const AdministrasiMerdeka: React.FC<AdministrasiMerdekaProps> = ({
       ) : currentSubView === 'piket-bk-ekskul' ? (
         <PiketBkEkstraGenerator school={school} teacher={teacher} year={year} initialTab="piket" />
       ) : currentSubView === 'adaptor-identitas' ? (
-        <IdentitasReplacerGenerator school={school} teacher={teacher} year={year} />
+        <IdentitasReplacerGenerator
+          school={school}
+          teacher={teacher}
+          year={year}
+          selectedAssignmentSubject={selectedAssignmentSubject}
+          selectedClassLabel={selectedClassLabel}
+        />
       ) : (
         <>
           {/* ── PROGRESS & STAGE SUMMARY CARDS ── */}

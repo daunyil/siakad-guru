@@ -21,19 +21,36 @@ interface P5ProjekGeneratorProps {
   school: SchoolProfile;
   teacher: TeacherProfile;
   year: AcademicYear;
+  selectedAssignmentSubject?: string;
+  selectedClassLabel?: string;
 }
 
 export const P5ProjekGenerator: React.FC<P5ProjekGeneratorProps> = ({
   school,
   teacher,
   year,
+  selectedAssignmentSubject,
+  selectedClassLabel,
 }) => {
   // Theme and Project Settings
   const [selectedThemeId, setSelectedThemeId] = useState<string>('gaya-hidup');
   const [projectTitle, setProjectTitle] = useState<string>(P5_THEMES[0].defaultProjectTitle);
   const targetPhase = 'Fase D (Kelas VII-IX)';
-  const [selectedGrade, setSelectedGrade] = useState<'VII' | 'VIII' | 'IX'>('VII');
-  const [selectedClass, setSelectedClass] = useState<string>('VII-A');
+  const [selectedGrade, setSelectedGrade] = useState<'VII' | 'VIII' | 'IX'>(() => {
+    if (selectedClassLabel?.toUpperCase().includes('VIII')) return 'VIII';
+    if (selectedClassLabel?.toUpperCase().includes('IX')) return 'IX';
+    return 'VII';
+  });
+  const [selectedClass, setSelectedClass] = useState<string>(selectedClassLabel || 'VII-A');
+
+  React.useEffect(() => {
+    if (selectedClassLabel) {
+      setSelectedClass(selectedClassLabel);
+      if (selectedClassLabel.toUpperCase().includes('VIII')) setSelectedGrade('VIII');
+      else if (selectedClassLabel.toUpperCase().includes('IX')) setSelectedGrade('IX');
+      else if (selectedClassLabel.toUpperCase().includes('VII')) setSelectedGrade('VII');
+    }
+  }, [selectedClassLabel]);
   const [totalJp, setTotalJp] = useState<number>(48);
 
   // Active Tab

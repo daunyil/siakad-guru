@@ -1,6 +1,7 @@
 import React from 'react';
 import type { MonthCol, WeekStatus, TpAllocationItem } from './types';
 import { KaldikControlBar } from './KaldikControlBar';
+import { Sparkles } from 'lucide-react';
 
 interface ProsemTableProps {
   selectedSemester: 'ganjil' | 'genap';
@@ -17,6 +18,9 @@ interface ProsemTableProps {
   jpPerWeek: number;
   jpIntraPerWeek?: number;
   jpKoPerWeek?: number;
+  onAutoOptimizeJp?: (targetCadangan?: number) => void;
+  targetCadanganPerSem?: number;
+  setTargetCadanganPerSem?: (val: number) => void;
 }
 
 export const ProsemTable: React.FC<ProsemTableProps> = ({
@@ -34,6 +38,9 @@ export const ProsemTable: React.FC<ProsemTableProps> = ({
   jpPerWeek,
   jpIntraPerWeek = 2,
   jpKoPerWeek = 1,
+  onAutoOptimizeJp,
+  targetCadanganPerSem = 4,
+  setTargetCadanganPerSem,
 }) => {
   const targetMap = selectedSemester === 'ganjil' ? ganjilTags : genapTags;
 
@@ -72,6 +79,51 @@ export const ProsemTable: React.FC<ProsemTableProps> = ({
 
   return (
     <div className="space-y-4 font-sans">
+      {/* Alert Banner when Jam Cadangan in Prosem is large */}
+      {cadanganJp > 8 && (
+        <div className="bg-amber-50 border-2 border-amber-300 text-amber-950 p-4 rounded-2xl space-y-2 no-print shadow-xs">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 bg-amber-100 rounded-xl text-amber-700 shrink-0">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <h5 className="font-extrabold text-xs uppercase text-amber-900 tracking-tight">
+                  Jam Cadangan Semester {selectedSemester.toUpperCase()} Terlalu Banyak ({cadanganJp} JP / {cadanganWeeks} Pekan)
+                </h5>
+                <p className="text-[11px] text-amber-800 font-medium">
+                  Klik tombol optimasi di bawah untuk secara otomatis meratakan jam pelajaran ke seluruh TP dan menyisakan cadangan efektif.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1.5 rounded-xl border border-amber-300 text-[11px]">
+                <span className="font-bold text-slate-700">Target Cadangan:</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={20}
+                  value={targetCadanganPerSem}
+                  onChange={(e) => setTargetCadanganPerSem?.(parseInt(e.target.value) || 0)}
+                  className="w-10 px-1 py-0.5 border rounded-md font-extrabold text-center text-amber-900 bg-amber-50/50"
+                />
+                <span className="text-slate-500 font-bold">JP</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => onAutoOptimizeJp?.(targetCadanganPerSem)}
+                className="px-3.5 py-1.5 bg-amber-700 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
+              >
+                <Sparkles className="w-4 h-4 text-amber-300" />
+                <span>⚡ Optimalkan Matriks Prosem</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Regional Kaldik Control Bar (No Print) */}
       <KaldikControlBar
         selectedSemester={selectedSemester}

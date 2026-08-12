@@ -6,7 +6,7 @@ import type {
   TeacherProfile,
   AcademicYear,
 } from '../../types';
-import { initialCpSubjects } from '../../data/cpMasterData';
+import { initialCpSubjects, findCpSubjectId } from '../../data/cpMasterData';
 import { smartPrint } from '../../utils/printHelper';
 import {
   Calendar,
@@ -32,19 +32,44 @@ interface ProtaProsemGeneratorProps {
   school: SchoolProfile;
   teacher: TeacherProfile;
   year: AcademicYear;
+  selectedAssignmentSubject?: string;
+  selectedClassLabel?: string;
 }
 
 export const ProtaProsemGenerator: React.FC<ProtaProsemGeneratorProps> = ({
   school,
   teacher,
   year,
+  selectedAssignmentSubject,
+  selectedClassLabel,
 }) => {
   // Master Subjects Data
   const [subjects] = useState<CPSubject[]>(initialCpSubjects);
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(
-    initialCpSubjects[0]?.id || ''
+  const activeSubjectName = selectedAssignmentSubject || teacher.subject;
+
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(() =>
+    findCpSubjectId(initialCpSubjects, activeSubjectName)
   );
-  const [selectedGrade, setSelectedGrade] = useState<'VII' | 'VIII' | 'IX'>('VII');
+
+  React.useEffect(() => {
+    const targetSubjectId = findCpSubjectId(subjects, activeSubjectName);
+    if (targetSubjectId) {
+      setSelectedSubjectId(targetSubjectId);
+    }
+  }, [activeSubjectName, subjects]);
+
+  const [selectedGrade, setSelectedGrade] = useState<'VII' | 'VIII' | 'IX'>(() => {
+    if (selectedClassLabel?.toUpperCase().includes('VIII')) return 'VIII';
+    if (selectedClassLabel?.toUpperCase().includes('IX')) return 'IX';
+    return 'VII';
+  });
+
+  React.useEffect(() => {
+    if (selectedClassLabel?.toUpperCase().includes('VIII')) setSelectedGrade('VIII');
+    else if (selectedClassLabel?.toUpperCase().includes('IX')) setSelectedGrade('IX');
+    else if (selectedClassLabel?.toUpperCase().includes('VII')) setSelectedGrade('VII');
+  }, [selectedClassLabel]);
+
   const [activeTab, setActiveTab] = useState<'prota' | 'prosem'>('prota');
   const [selectedSemester, setSelectedSemester] = useState<'ganjil' | 'genap'>('ganjil');
 
@@ -68,6 +93,19 @@ export const ProtaProsemGenerator: React.FC<ProtaProsemGeneratorProps> = ({
     teacherNip: teacher.nip || '19850410 201001 2 015',
     dateLocation: 'Bantan, 14 Juli 2025',
   });
+
+  React.useEffect(() => {
+    setKop((prev) => ({
+      ...prev,
+      schoolName: school.name || prev.schoolName,
+      npsn: school.npsn || prev.npsn,
+      address: school.address || prev.address,
+      headmasterName: school.headmasterName || prev.headmasterName,
+      headmasterNip: school.headmasterNip || prev.headmasterNip,
+      teacherName: teacher.name || prev.teacherName,
+      teacherNip: teacher.nip || prev.teacherNip,
+    }));
+  }, [school, teacher]);
 
   const [isEditingKop, setIsEditingKop] = useState<boolean>(false);
 
@@ -98,6 +136,60 @@ export const ProtaProsemGenerator: React.FC<ProtaProsemGeneratorProps> = ({
 
   // Prota Allocation state (editable JP per TP)
   const [customJpMap, setCustomJpMap] = useState<Record<string, { jp: number; semester: 'ganjil' | 'genap' }>>({});
+  const [targetCadanganPerSem, setTargetCadanganPerSem] = useState<number>(3);
+
+  // Months definition for PROSEM
+  const ganjilMonths: MonthCol[] = useMemo(() => [
+    { name: 'Juli', weeks: 4 },
+    { name: 'Agustus', weeks: 5 },
+    { name: 'September', weeks: 4 },
+    { name: 'Oktober', weeks: 4 },
+    { name: 'November', weeks: 5 },
+    { name: 'Desember', weeks: 4 },
+  ], []);
+
+  const genapMonths: MonthCol[] = useMemo(() => [
+    { name: 'Januari', weeks: 5 },
+    { name: 'Februari', weeks: 4 },
+    { name: 'Maret', weeks: 4 },
+    { name: 'April', weeks: 4 },
+    { name: 'Mei', weeks: 5 },
+    { name: 'Juni', weeks: 4 },
+  ], []);
+
+  // Regional Kaldik & Week Tagging State
+  const [selectedRegionId, setSelectedRegionId] = useState<string>('riau');
+  const [isKaldikModalOpen, setIsKaldikModalOpen] = useState<boolean>(false);
+  const [isNationalHolidaysModalOpen, setIsNationalHolidaysModalOpen] = useState<boolean>(false);
+  const [ganjilTags, setGanjilTags] = useState<Record<string, WeekStatus>>(
+    REGIONAL_KALDIK_PRESETS[0].ganjilTags
+  );
+  const [genapTags, setGenapTags] = useState<Record<string, WeekStatus>>(
+    REGIONAL_KALDIK_PRESETS[0].genapTags
+  );
+
+  // Calculate actual KBM weeks from Kaldik calendar
+  const actualKbmWeeksGanjil = useMemo(() => {
+    let kbm = 0;
+    ganjilMonths.forEach((m) => {
+      for (let w = 0; w < m.weeks; w++) {
+        const tag = ganjilTags[`${m.name}-${w}`] || 'kbm';
+        if (tag === 'kbm') kbm++;
+      }
+    });
+    return kbm;
+  }, [ganjilTags, ganjilMonths]);
+
+  const actualKbmWeeksGenap = useMemo(() => {
+    let kbm = 0;
+    genapMonths.forEach((m) => {
+      for (let w = 0; w < m.weeks; w++) {
+        const tag = genapTags[`${m.name}-${w}`] || 'kbm';
+        if (tag === 'kbm') kbm++;
+      }
+    });
+    return kbm;
+  }, [genapTags, genapMonths]);
 
   // Initialize custom JP map when subject/grade changes
   const tpAllocations = useMemo(() => {
@@ -134,8 +226,8 @@ export const ProtaProsemGenerator: React.FC<ProtaProsemGeneratorProps> = ({
   }, [gradeTps, customJpMap, jpPerWeek, jpIntraPerWeek, jpKoPerWeek]);
 
   // Summary calculations
-  const totalJpGanjilAvailable = weeksGanjil * jpPerWeek;
-  const totalJpGenapAvailable = weeksGenap * jpPerWeek;
+  const totalJpGanjilAvailable = actualKbmWeeksGanjil * jpPerWeek;
+  const totalJpGenapAvailable = actualKbmWeeksGenap * jpPerWeek;
   const totalJpYearAvailable = totalJpGanjilAvailable + totalJpGenapAvailable;
 
   const allocatedJpGanjil = tpAllocations
@@ -163,16 +255,101 @@ export const ProtaProsemGenerator: React.FC<ProtaProsemGeneratorProps> = ({
     }));
   };
 
-  // Regional Kaldik & Week Tagging State
-  const [selectedRegionId, setSelectedRegionId] = useState<string>('riau');
-  const [isKaldikModalOpen, setIsKaldikModalOpen] = useState<boolean>(false);
-  const [isNationalHolidaysModalOpen, setIsNationalHolidaysModalOpen] = useState<boolean>(false);
-  const [ganjilTags, setGanjilTags] = useState<Record<string, WeekStatus>>(
-    REGIONAL_KALDIK_PRESETS[0].ganjilTags
-  );
-  const [genapTags, setGenapTags] = useState<Record<string, WeekStatus>>(
-    REGIONAL_KALDIK_PRESETS[0].genapTags
-  );
+  // Smart Auto-Optimizer: Distributes available JP proportionately in exact weekly units across TPs leaving minimal Jam Cadangan (1 week default)
+  const handleAutoOptimizeJp = (targetCadanganJp: number = targetCadanganPerSem) => {
+    if (gradeTps.length === 0) return;
+
+    const perWeek = Math.max(1, jpPerWeek);
+
+    // Target cadangan in weeks (at least 0, default 1 week)
+    const cadanganWeeksTarget = Math.max(0, Math.round(targetCadanganJp / perWeek));
+
+    // Calculate available KBM weeks per semester from Kaldik
+    const totalKbmGanjil = actualKbmWeeksGanjil;
+    const totalKbmGenap = actualKbmWeeksGenap;
+
+    const targetTpWeeksGanjil = Math.max(1, totalKbmGanjil - cadanganWeeksTarget);
+    const targetTpWeeksGenap = Math.max(1, totalKbmGenap - cadanganWeeksTarget);
+
+    const ganjilTps = gradeTps.filter((item, index) => {
+      const custom = customJpMap[item.tp.code];
+      const sem = custom
+        ? custom.semester
+        : item.tp.semester === 1
+        ? 'ganjil'
+        : item.tp.semester === 2
+        ? 'genap'
+        : index < Math.ceil(gradeTps.length / 2)
+        ? 'ganjil'
+        : 'genap';
+      return sem === 'ganjil';
+    });
+
+    const genapTps = gradeTps.filter((item, index) => {
+      const custom = customJpMap[item.tp.code];
+      const sem = custom
+        ? custom.semester
+        : item.tp.semester === 1
+        ? 'ganjil'
+        : item.tp.semester === 2
+        ? 'genap'
+        : index < Math.ceil(gradeTps.length / 2)
+        ? 'ganjil'
+        : 'genap';
+      return sem === 'genap';
+    });
+
+    const newCustomMap: Record<string, { jp: number; semester: 'ganjil' | 'genap' }> = {};
+
+    // 1. Optimize Ganjil TPs in WEEKS
+    const weightGanjilSum = ganjilTps.reduce((acc, curr) => acc + (curr.tp.jp || 10), 0);
+    if (ganjilTps.length > 0 && weightGanjilSum > 0) {
+      let allocatedWeeks = 0;
+      ganjilTps.forEach((item, idx) => {
+        let tpWeeks: number;
+        if (idx === ganjilTps.length - 1) {
+          tpWeeks = Math.max(1, targetTpWeeksGanjil - allocatedWeeks);
+        } else {
+          const w = (item.tp.jp || 10) / weightGanjilSum;
+          tpWeeks = Math.max(1, Math.round(targetTpWeeksGanjil * w));
+          allocatedWeeks += tpWeeks;
+        }
+        newCustomMap[item.tp.code] = {
+          jp: tpWeeks * perWeek,
+          semester: 'ganjil',
+        };
+      });
+    }
+
+    // 2. Optimize Genap TPs in WEEKS
+    const weightGenapSum = genapTps.reduce((acc, curr) => acc + (curr.tp.jp || 10), 0);
+    if (genapTps.length > 0 && weightGenapSum > 0) {
+      let allocatedWeeks = 0;
+      genapTps.forEach((item, idx) => {
+        let tpWeeks: number;
+        if (idx === genapTps.length - 1) {
+          tpWeeks = Math.max(1, targetTpWeeksGenap - allocatedWeeks);
+        } else {
+          const w = (item.tp.jp || 10) / weightGenapSum;
+          tpWeeks = Math.max(1, Math.round(targetTpWeeksGenap * w));
+          allocatedWeeks += tpWeeks;
+        }
+        newCustomMap[item.tp.code] = {
+          jp: tpWeeks * perWeek,
+          semester: 'genap',
+        };
+      });
+    }
+
+    setCustomJpMap(newCustomMap);
+  };
+
+  // Auto-optimize TP JP on load or subject/grade/kaldik change so Jam Cadangan defaults to 1 week (3-4 JP)
+  React.useEffect(() => {
+    if (gradeTps.length > 0) {
+      handleAutoOptimizeJp(targetCadanganPerSem);
+    }
+  }, [selectedSubjectId, selectedGrade, selectedRegionId, jpPerWeek, actualKbmWeeksGanjil, actualKbmWeeksGenap, gradeTps.length]);
 
   // Handle Preset Change
   const handleSelectRegionPreset = (regionId: string) => {
@@ -206,25 +383,6 @@ export const ProtaProsemGenerator: React.FC<ProtaProsemGeneratorProps> = ({
     setSelectedRegionId('custom');
     showToast(`Berhasil menerapkan ${countApplied} Hari Libur Nasional & Cuti Bersama ke Kaldik!`);
   };
-
-  // Months definition for PROSEM
-  const ganjilMonths: MonthCol[] = [
-    { name: 'Juli', weeks: 4 },
-    { name: 'Agustus', weeks: 5 },
-    { name: 'September', weeks: 4 },
-    { name: 'Oktober', weeks: 4 },
-    { name: 'November', weeks: 5 },
-    { name: 'Desember', weeks: 4 },
-  ];
-
-  const genapMonths: MonthCol[] = [
-    { name: 'Januari', weeks: 5 },
-    { name: 'Februari', weeks: 4 },
-    { name: 'Maret', weeks: 4 },
-    { name: 'April', weeks: 4 },
-    { name: 'Mei', weeks: 5 },
-    { name: 'Juni', weeks: 4 },
-  ];
 
   // Helper to toggle week tag
   const handleToggleWeekTag = (semester: 'ganjil' | 'genap', monthName: string, weekIdx: number) => {
@@ -463,16 +621,26 @@ export const ProtaProsemGenerator: React.FC<ProtaProsemGeneratorProps> = ({
             </span>
           </div>
 
-          <div className="bg-emerald-50/70 p-3 rounded-xl border border-emerald-200">
-            <span className="text-emerald-700 font-bold block">Status Alokasi JP TP:</span>
-            <span className="text-base font-black text-emerald-900 block mt-1">
-              {totalAllocatedJp} / {totalJpYearAvailable} JP
-            </span>
-            <span className="text-[10px] text-emerald-700">
-              {totalAllocatedJp <= totalJpYearAvailable
-                ? '✓ Alokasi Kuota Memenuhi'
-                : '⚠️ Melebihi kuota jam efektif!'}
-            </span>
+          <div className="bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 flex flex-col justify-between">
+            <div>
+              <span className="text-emerald-700 font-bold block">Status Alokasi JP TP:</span>
+              <span className="text-base font-black text-emerald-900 block mt-1">
+                {totalAllocatedJp} / {totalJpYearAvailable} JP
+              </span>
+              <span className="text-[10px] text-emerald-700 block">
+                {totalAllocatedJp <= totalJpYearAvailable
+                  ? '✓ Alokasi Kuota Memenuhi'
+                  : '⚠️ Melebihi kuota jam efektif!'}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleAutoOptimizeJp(targetCadanganPerSem)}
+              className="mt-2 text-[10px] bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-1 px-2 rounded-lg transition-all flex items-center justify-center gap-1 shadow-xs"
+            >
+              <Sparkles className="w-3 h-3 text-amber-300" />
+              <span>⚡ Optimalkan JP Otomatis</span>
+            </button>
           </div>
         </div>
       </div>
@@ -550,6 +718,9 @@ export const ProtaProsemGenerator: React.FC<ProtaProsemGeneratorProps> = ({
             jpPerWeek={jpPerWeek}
             jpIntraPerWeek={jpIntraPerWeek}
             jpKoPerWeek={jpKoPerWeek}
+            onAutoOptimizeJp={handleAutoOptimizeJp}
+            targetCadanganPerSem={targetCadanganPerSem}
+            setTargetCadanganPerSem={setTargetCadanganPerSem}
           />
         )}
 

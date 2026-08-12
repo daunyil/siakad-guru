@@ -6,7 +6,7 @@ import type {
   TeacherProfile,
   AcademicYear,
 } from '../../types';
-import { initialCpSubjects } from '../../data/cpMasterData';
+import { initialCpSubjects, findCpSubjectId } from '../../data/cpMasterData';
 import { smartPrint } from '../../utils/printHelper';
 import {
   Award,
@@ -30,6 +30,8 @@ interface AsesmenKKTPGeneratorProps {
   school: SchoolProfile;
   teacher: TeacherProfile;
   year: AcademicYear;
+  selectedAssignmentSubject?: string;
+  selectedClassLabel?: string;
 }
 
 interface StudentGradeRecord {
@@ -45,14 +47,42 @@ export const AsesmenKKTPGenerator: React.FC<AsesmenKKTPGeneratorProps> = ({
   school,
   teacher,
   year,
+  selectedAssignmentSubject,
+  selectedClassLabel,
 }) => {
   // Master Subjects Data
   const [subjects] = useState<CPSubject[]>(initialCpSubjects);
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(
-    initialCpSubjects[0]?.id || ''
+  const activeSubjectName = selectedAssignmentSubject || teacher.subject;
+
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(() =>
+    findCpSubjectId(initialCpSubjects, activeSubjectName)
   );
-  const [selectedGrade, setSelectedGrade] = useState<'VII' | 'VIII' | 'IX'>('VII');
-  const [selectedClass, setSelectedClass] = useState<string>('VII-A');
+
+  React.useEffect(() => {
+    const targetSubjectId = findCpSubjectId(subjects, activeSubjectName);
+    if (targetSubjectId) {
+      setSelectedSubjectId(targetSubjectId);
+    }
+  }, [activeSubjectName, subjects]);
+
+  const [selectedGrade, setSelectedGrade] = useState<'VII' | 'VIII' | 'IX'>(() => {
+    if (selectedClassLabel?.toUpperCase().includes('VIII')) return 'VIII';
+    if (selectedClassLabel?.toUpperCase().includes('IX')) return 'IX';
+    return 'VII';
+  });
+
+  const [selectedClass, setSelectedClass] = useState<string>(
+    selectedClassLabel || 'VII-A'
+  );
+
+  React.useEffect(() => {
+    if (selectedClassLabel) {
+      setSelectedClass(selectedClassLabel);
+      if (selectedClassLabel.toUpperCase().includes('VIII')) setSelectedGrade('VIII');
+      else if (selectedClassLabel.toUpperCase().includes('IX')) setSelectedGrade('IX');
+      else if (selectedClassLabel.toUpperCase().includes('VII')) setSelectedGrade('VII');
+    }
+  }, [selectedClassLabel]);
   const [selectedSemester, setSelectedSemester] = useState<'ganjil' | 'genap'>('ganjil');
 
   const [activeTab, setActiveTab] = useState<'kktp' | 'buku-nilai' | 'e-rapor'>('kktp');

@@ -1185,3 +1185,26 @@ export const initialCpSubjects: CPSubject[] = [
     ],
   },
 ];
+
+export function findCpSubjectId(subjects: CPSubject[], subjectName?: string): string {
+  if (!subjectName) return subjects[0]?.id || '';
+  const query = subjectName.toLowerCase().trim();
+  const found = subjects.find((s) => {
+    const sName = s.subjectName.toLowerCase();
+    return (
+      sName === query ||
+      sName.includes(query) ||
+      query.includes(sName) ||
+      (query.includes('ipa') && sName.includes('ilmu pengetahuan alam')) ||
+      (query.includes('ips') && sName.includes('ilmu pengetahuan sosial')) ||
+      (query.includes('pancasila') && sName.includes('pancasila')) ||
+      (query.includes('pai') && sName.includes('agama islam')) ||
+      (query.includes('pjok') && sName.includes('pjok')) ||
+      (query.includes('matematika') && sName.includes('matematika')) ||
+      (query.includes('inggris') && sName.includes('inggris')) ||
+      (query.includes('indonesia') && sName.includes('indonesia')) ||
+      (query.includes('informatika') && sName.includes('informatika'))
+    );
+  });
+  return found?.id || subjects[0]?.id || '';
+}

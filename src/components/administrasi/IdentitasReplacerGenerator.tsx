@@ -42,6 +42,8 @@ interface IdentitasReplacerGeneratorProps {
   school: SchoolProfile;
   teacher: TeacherProfile;
   year: AcademicYear;
+  selectedAssignmentSubject?: string;
+  selectedClassLabel?: string;
 }
 
 interface UploadedFileItem {
@@ -61,6 +63,8 @@ export const IdentitasReplacerGenerator: React.FC<IdentitasReplacerGeneratorProp
   school,
   teacher,
   year,
+  selectedAssignmentSubject,
+  selectedClassLabel,
 }) => {
   // Preset or custom document text & HTML
   const [selectedPresetId, setSelectedPresetId] = useState<string>('modul-matematika');
@@ -82,6 +86,16 @@ export const IdentitasReplacerGenerator: React.FC<IdentitasReplacerGeneratorProp
   const [targetHeadmasterNip, setTargetHeadmasterNip] = useState<string>(school.headmasterNip || '----------------');
   const [targetYear, setTargetYear] = useState<string>(year.label);
   const [targetSemester, setTargetSemester] = useState<string>(year.semester === 1 ? 'Ganjil' : 'Genap');
+
+  React.useEffect(() => {
+    if (school.name) setTargetSchool(school.name);
+    if (teacher.name) setTargetTeacher(teacher.name);
+    if (teacher.nip) setTargetTeacherNip(teacher.nip);
+    if (school.headmasterName) setTargetHeadmaster(school.headmasterName);
+    if (school.headmasterNip) setTargetHeadmasterNip(school.headmasterNip);
+    if (year.label) setTargetYear(year.label);
+    if (year.semester) setTargetSemester(year.semester === 1 ? 'Ganjil' : 'Genap');
+  }, [school, teacher, year]);
 
   // Tempat & Tanggal Target
   const [targetPlace, setTargetPlace] = useState<string>(defaultDistrict);
