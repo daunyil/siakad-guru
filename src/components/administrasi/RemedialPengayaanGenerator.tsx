@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import type { SchoolProfile, TeacherProfile, AcademicYear } from '../../types';
-import { sampleStudents7A } from '../../data/sampleData';
+import { sampleStudents7A, STANDARD_SUBJECT_OPTIONS } from '../../data/sampleData';
 import { exportToExcel } from '../../utils/exporters';
 import {
   RefreshCw,
@@ -461,12 +461,18 @@ export const RemedialPengayaanGenerator: React.FC<RemedialPengayaanGeneratorProp
 
           <div>
             <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Mata Pelajaran</label>
-            <input
-              type="text"
+            <select
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-semibold text-slate-900 focus:ring-2 focus:ring-blue-500"
-            />
+            >
+              {STANDARD_SUBJECT_OPTIONS.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+              {subject && !STANDARD_SUBJECT_OPTIONS.includes(subject) && (
+                <option value={subject}>{subject}</option>
+              )}
+            </select>
           </div>
 
           <div>

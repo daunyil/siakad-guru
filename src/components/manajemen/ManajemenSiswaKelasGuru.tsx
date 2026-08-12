@@ -7,6 +7,7 @@ import type {
   TeachingAssignment,
   Student,
 } from '../../types';
+import { STANDARD_SUBJECT_OPTIONS } from '../../data/sampleData';
 import {
   Users,
   Building,
@@ -337,6 +338,8 @@ export const ManajemenSiswaKelasGuru: React.FC<ManajemenSiswaKelasGuruProps> = (
   // ---------------------------------------------------------------------------
   const [isTeacherModalOpen, setIsTeacherModalOpen] = useState(false);
   const [editingTeacherModal, setEditingTeacherModal] = useState<TeacherProfile | null>(null);
+  const [isCustomTeacherSubject, setIsCustomTeacherSubject] = useState(false);
+  const [isCustomAssignmentSubject, setIsCustomAssignmentSubject] = useState(false);
   const [teacherFormModal, setTeacherFormModal] = useState<TeacherProfile>({
     id: '',
     name: '',
@@ -1589,14 +1592,47 @@ export const ManajemenSiswaKelasGuru: React.FC<ManajemenSiswaKelasGuruProps> = (
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Mata Pelajaran Utama</label>
-                  <input
-                    type="text"
-                    value={teacherFormModal.subject}
-                    onChange={(e) => setTeacherFormModal({ ...teacherFormModal, subject: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                    placeholder="Contoh: Matematika"
-                    required
-                  />
+                  {isCustomTeacherSubject ? (
+                    <div className="space-y-1">
+                      <input
+                        type="text"
+                        value={teacherFormModal.subject}
+                        onChange={(e) => setTeacherFormModal({ ...teacherFormModal, subject: e.target.value })}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
+                        placeholder="Contoh: Bahasa Melayu"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setIsCustomTeacherSubject(false)}
+                        className="text-[10px] text-blue-600 hover:underline font-bold"
+                      >
+                        ← Pilih dari daftar dropdown
+                      </button>
+                    </div>
+                  ) : (
+                    <select
+                      value={teacherFormModal.subject}
+                      onChange={(e) => {
+                        if (e.target.value === '__CUSTOM__') {
+                          setIsCustomTeacherSubject(true);
+                        } else {
+                          setTeacherFormModal({ ...teacherFormModal, subject: e.target.value });
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
+                      required
+                    >
+                      <option value="" disabled>-- Pilih Mata Pelajaran --</option>
+                      {STANDARD_SUBJECT_OPTIONS.map((sub) => (
+                        <option key={sub} value={sub}>{sub}</option>
+                      ))}
+                      {teacherFormModal.subject && !STANDARD_SUBJECT_OPTIONS.includes(teacherFormModal.subject) && (
+                        <option value={teacherFormModal.subject}>{teacherFormModal.subject}</option>
+                      )}
+                      <option value="__CUSTOM__">✍️ + Ketik Manual (Mata Pelajaran Lain)</option>
+                    </select>
+                  )}
                 </div>
 
                 <div>
@@ -1860,13 +1896,47 @@ export const ManajemenSiswaKelasGuru: React.FC<ManajemenSiswaKelasGuruProps> = (
 
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Mata Pelajaran</label>
-                <input
-                  type="text"
-                  value={assignmentForm.subject}
-                  onChange={(e) => setAssignmentForm({ ...assignmentForm, subject: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl font-bold"
-                  required
-                />
+                {isCustomAssignmentSubject ? (
+                  <div className="space-y-1">
+                    <input
+                      type="text"
+                      value={assignmentForm.subject}
+                      onChange={(e) => setAssignmentForm({ ...assignmentForm, subject: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
+                      placeholder="Contoh: Bahasa Melayu"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsCustomAssignmentSubject(false)}
+                      className="text-[10px] text-blue-600 hover:underline font-bold"
+                    >
+                      ← Pilih dari daftar dropdown
+                    </button>
+                  </div>
+                ) : (
+                  <select
+                    value={assignmentForm.subject}
+                    onChange={(e) => {
+                      if (e.target.value === '__CUSTOM__') {
+                        setIsCustomAssignmentSubject(true);
+                      } else {
+                        setAssignmentForm({ ...assignmentForm, subject: e.target.value });
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
+                    required
+                  >
+                    <option value="" disabled>-- Pilih Mata Pelajaran --</option>
+                    {STANDARD_SUBJECT_OPTIONS.map((sub) => (
+                      <option key={sub} value={sub}>{sub}</option>
+                    ))}
+                    {assignmentForm.subject && !STANDARD_SUBJECT_OPTIONS.includes(assignmentForm.subject) && (
+                      <option value={assignmentForm.subject}>{assignmentForm.subject}</option>
+                    )}
+                    <option value="__CUSTOM__">✍️ + Ketik Manual (Mata Pelajaran Lain)</option>
+                  </select>
+                )}
               </div>
 
               <div>

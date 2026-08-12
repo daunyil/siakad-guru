@@ -372,3 +372,30 @@ export const sampleTeachingJournals7AMat: TeachingJournal[] = [
     realizationStatus: 'done',
   },
 ];
+
+export const STANDARD_SUBJECT_OPTIONS = [
+  'Pendidikan Pancasila',
+  'Bahasa Indonesia',
+  'Matematika',
+  'Ilmu Pengetahuan Alam (IPA)',
+  'Ilmu Pengetahuan Sosial (IPS)',
+  'Bahasa Inggris',
+  'Informatika',
+  'Pendidikan Agama Islam (PAI)',
+  'Pendidikan Agama Kristen',
+  'Pendidikan Agama Katolik',
+  'Pendidikan Agama Hindu',
+  'Pendidikan Agama Buddha',
+  'Pendidikan Agama Khonghucu',
+  'PJOK',
+  'Seni Budaya',
+  'Seni Rupa',
+  'Seni Musik',
+  'Seni Tari',
+  'Seni Teater',
+  'Prakarya & Kewirausahaan',
+  'Bahasa Daerah / Melayu',
+  'Bimbingan dan Konseling (BK)',
+  'Muatan Lokal (Mulok)',
+];
+
