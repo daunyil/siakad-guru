@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+/* Official Document & DOCX Preview Styles */
+.formal-doc-preview {
+  font-family: 'Times New Roman', Times, Georgia, serif;
+  color: #0f172a;
+}
+
+.formal-doc-preview table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.formal-doc-preview table td,
+.formal-doc-preview table th {
+  padding: 6px 10px;
+  vertical-align: top;
+}
+
+.formal-doc-preview table.bordered-table,
+.formal-doc-preview table.bordered-table td,
+.formal-doc-preview table.bordered-table th {
+  border: 1px solid #334155;
+}
+
+/* docx-preview High-Fidelity Container Customization */
+.docx-render-container .docx-wrapper {
+  background: transparent !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 20px !important;
+}
+
+.docx-render-container .docx-wrapper > section.docx {
+  background: white !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  margin-bottom: 16px !important;
+  color: #0f172a !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.docx-render-container table {
+  border-collapse: collapse;
+}
+
+.docx-render-container table td,
+.docx-render-container table th {
+  border-color: #94a3b8;
+}
+
+@media print {
+  .no-print,
+  .print\:hidden,
+  [class*="print:hidden"],
+  aside,
+  header,
+  nav,
+  button,
+  .no-print * {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  mark {
+    background-color: #fef08a !important;
+    color: #451a03 !important;
+    border-bottom: 2px solid #f59e0b !important;
+    padding: 1px 4px !important;
+    border-radius: 3px !important;
+    font-weight: 600 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .document-page,
+  .formal-doc-preview,
+  .docx-render-container .docx-wrapper > section.docx {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .print-only {
+    display: inline-block !important;
+  }
+
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+}
+
